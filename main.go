@@ -103,17 +103,6 @@ func main() {
 			return
 		}
 
-		log.WithField("av", av).Info("marshall")
-
-		// unmarshall map to check
-		var record2 Record
-		err = attributevalue.UnmarshalMap(av, &record2)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		log.WithField("record2", record2).Info("unmarshall")
-
 		_, err = client.PutItem(context.TODO(), &dynamodb.PutItemInput{
 			Item:      av,
 			TableName: aws.String("Records"),
