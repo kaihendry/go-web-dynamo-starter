@@ -103,6 +103,7 @@ func main() {
 			return
 		}
 
+		// what if issueDate is wrong?
 		_, err = client.PutItem(context.TODO(), &dynamodb.PutItemInput{
 			Item:      av,
 			TableName: aws.String("Records"),
@@ -112,7 +113,17 @@ func main() {
 			return
 		}
 
+		// output how many records we have, using an empty ProjectionExpression
+		records, err := client.Scan(context.TODO(), &dynamodb.ScanInput{
+			TableName: aws.String("Records"),
+			ProjectionExpression: aws.String("id"),
+		})
+
+		fmt.Fprintf(w, "added %d records\n", records.Count)
+
 	})
+
+	// get latest record
 
 	var err error
 
