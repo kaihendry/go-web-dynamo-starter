@@ -22,9 +22,9 @@ import (
 )
 
 type Record struct {
-	Id         string    `json:"id"`
-	IssueDate  time.Time `json:"issueDate"`
-	RandomWord string    `json:"randomWord"`
+	Id         string    `dynamodbav:"id" json:"id"`
+	IssueDate  time.Time `dynamodbav:"issueDate" json:"issueDate"`
+	RandomWord string    `dynamodbav:"randomWord" json:"randomWord"`
 }
 
 func dynamoCloud() *dynamodb.Client {
