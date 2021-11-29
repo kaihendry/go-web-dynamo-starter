@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -21,9 +22,9 @@ import (
 )
 
 type Record struct {
-	Id         string
-	IssueDate  time.Time
-	RandomWord string
+	Id         string    `json:"id"`
+	IssueDate  time.Time `json:"issueDate"`
+	RandomWord string    `json:"randomWord"`
 }
 
 func dynamoCloud() *dynamodb.Client {
@@ -74,6 +75,52 @@ func main() {
 		for _, record := range selection {
 			fmt.Fprintf(w, units.HumanDuration(time.Now().UTC().Sub(record.IssueDate))+" ago ")
 			fmt.Fprintf(w, "%+v\n", record)
+		}
+
+	})
+
+	http.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
+
+		// Handle post only
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		// parse body to a record
+		var record Record
+		err := json.NewDecoder(r.Body).Decode(&record)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		log.WithField("record", record).Info("adding")
+
+		// marshall record into dynamo
+		av, err := attributevalue.MarshalMap(record)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		log.WithField("av", av).Info("marshall")
+
+		// unmarshall map to check
+		var record2 Record
+		err = attributevalue.UnmarshalMap(av, &record2)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		log.WithField("record2", record2).Info("unmarshall")
+
+		_, err = client.PutItem(context.TODO(), &dynamodb.PutItemInput{
+			Item:      av,
+			TableName: aws.String("Records"),
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 	})

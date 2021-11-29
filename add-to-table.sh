@@ -10,9 +10,9 @@ cat <<EOJSON > /tmp/add.json
 "Put": {
 "TableName" : "Records",
 "Item" : {
-"id":{"S":"${id}"},
-"issueDate":{"S":"${date}"},
-"randomWord":{"S":"${randomWord}"}
+"Id":{"S":"${id}"},
+"IssueDate":{"S":"${date}"},
+"RandomWord":{"S":"${randomWord}"}
 }
 }
 }
