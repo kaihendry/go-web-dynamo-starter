@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+		"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -28,13 +28,12 @@ type Record struct {
 }
 
 func dynamoCloud() *dynamodb.Client {
+	log.Info("cloud config")
 	cfg, err := config.LoadDefaultConfig(context.TODO(), func(o *config.LoadOptions) error {
-		o.Region = "ap-southeast-1"
-		o.SharedConfigProfile = "mine"
 		return nil
 	})
 	if err != nil {
-		panic(err)
+		log.WithError(err).Fatal("failed to load config")
 	}
 	return dynamodb.NewFromConfig(cfg)
 }
@@ -45,7 +44,7 @@ func dynamoLocal() *dynamodb.Client {
 		return nil
 	})
 	if err != nil {
-		panic(err)
+		log.WithError(err).Fatal("failed to load config")
 	}
 	return dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
 		o.EndpointResolver = dynamodb.EndpointResolverFromURL("http://localhost:8000")
@@ -54,13 +53,15 @@ func dynamoLocal() *dynamodb.Client {
 
 func main() {
 
-	client := dynamoLocal()
+	client := dynamoCloud()
+
+	log.Info("starting")
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		// https://aws.github.io/aws-sdk-go-v2/docs/code-examples/dynamodb/scanitems/
 		records, err := client.Scan(context.TODO(), &dynamodb.ScanInput{
-			TableName: aws.String("Records"),
+			TableName: aws.String(os.Getenv("TABLE_NAME")),
 		})
 		if err != nil {
 			log.WithError(err).Fatal("couldn't get records")
@@ -106,7 +107,7 @@ func main() {
 		// what if issueDate is wrong?
 		_, err = client.PutItem(context.TODO(), &dynamodb.PutItemInput{
 			Item:      av,
-			TableName: aws.String("Records"),
+			TableName: aws.String(os.Getenv("TABLE_NAME")),
 		})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -115,7 +116,7 @@ func main() {
 
 		// output how many records we have, using an empty ProjectionExpression
 		records, err := client.Scan(context.TODO(), &dynamodb.ScanInput{
-			TableName: aws.String("Records"),
+			TableName:            aws.String(os.Getenv("TABLE_NAME")),
 			ProjectionExpression: aws.String("id"),
 		})
 
@@ -124,6 +125,31 @@ func main() {
 	})
 
 	// get latest record
+	// https://stackoverflow.com/a/12809659/4534
+	http.HandleFunc("/latest", func(w http.ResponseWriter, r *http.Request) {
+		log.Info("getting latest")
+
+		// sort by issueDate
+		records, err := client.Query(context.TODO(), &dynamodb.QueryInput{
+			TableName:        aws.String(os.Getenv("TABLE_NAME")),
+			ScanIndexForward: aws.Bool(true),
+			Limit:            aws.Int32(1),
+		})
+		if err != nil {
+			log.WithError(err).Fatal("couldn't get records")
+		}
+
+		var selection []Record
+		err = attributevalue.UnmarshalListOfMaps(records.Items, &selection)
+		if err != nil {
+			log.WithError(err).Fatal("couldn't parse records")
+		}
+
+		for _, record := range selection {
+			fmt.Fprintf(w, units.HumanDuration(time.Now().UTC().Sub(record.IssueDate))+" ago ")
+			fmt.Fprintf(w, "%+v\n", record)
+		}
+	})
 
 	var err error
 

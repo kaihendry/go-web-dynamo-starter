@@ -9,20 +9,25 @@ Parameters:
 
 Resources:
   RecordsTable:
-    Type: AWS::Serverless::SimpleTable
-
-  # Create log group for Access logs
-  AccessLogGroup:
-    Type: "AWS::Logs::LogGroup"
+    Type: AWS::DynamoDB::Table
     Properties:
-      LogGroupName: !Ref DomainName
-
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: issueDate
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: issueDate
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      
   Gateway:
     Type: AWS::Serverless::HttpApi
     Properties:
-      AccessLogSettings:
-        DestinationArn: !GetAtt AccessLogGroup.Arn
-        Format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","httpMethod":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":$context.status,"responseLatency":$context.responseLatency,"ip":"$context.identity.sourceIp","userAgent":"$context.identity.userAgent","integrationRequestId":"$context.integration.requestId","functionResponseStatus":"$context.integration.status","integrationLatency":"$context.integration.latency","integrationServiceStatus":"$context.integration.integrationStatus"}'
       Domain:
         DomainName: !Ref DomainName
         CertificateArn: !Ref ACMCertificateArn

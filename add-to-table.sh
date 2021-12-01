@@ -22,4 +22,4 @@ EOJSON
 cat /tmp/add.json
 
 aws --profile mine dynamodb transact-write-items --transact-items file:///tmp/add.json \
-   --endpoint-url http://localhost:8000
+    --endpoint-url http://localhost:8000
