@@ -1,7 +1,6 @@
 STACK = last2
 PROFILE = mine
 VERSION = 0.1
-TABLE = Records
 
 .PHONY: build deploy validate destroy
 
