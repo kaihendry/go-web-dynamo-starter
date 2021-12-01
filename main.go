@@ -29,9 +29,11 @@ func newServer(local bool) *server {
 	s := &server{router: &http.ServeMux{}}
 
 	if local {
+		log.SetHandler(text.Default)
 		log.Info("local mode")
 		s.client = dynamoLocal()
 	} else {
+		log.SetHandler(jsonhandler.Default)
 		log.Info("cloud mode")
 		s.client = dynamoCloud()
 	}
@@ -51,11 +53,12 @@ func main() {
 	var err error
 
 	if awsDetected {
-		log.SetHandler(jsonhandler.Default)
+		log.Info("starting cloud server")
 		err = gateway.ListenAndServe("", s.router)
 	} else {
-		log.SetHandler(text.Default)
 		err = http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), s.router)
 	}
+	log.Info(".... starting")
 	log.WithError(err).Fatal("error listening")
+	log.Info(".... ending")
 }

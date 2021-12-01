@@ -25,3 +25,6 @@ sam-tail-logs:
 
 clean:
 	rm -rf main gin-bin
+
+sync:
+	AWS_PROFILE=$(PROFILE) sam sync --stack-name last2 --watch
