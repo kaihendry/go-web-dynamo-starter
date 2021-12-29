@@ -25,9 +25,9 @@
     <ol>
       {{range .Selection -}}
       <li
-        style="background-color: {{ .Color }}; color: #fff; text-shadow: #000 0px 0px 2px;"
+        style="background-color: {{ .Color }};"
       >
-        {{ .ID }} - Created: {{ .TimeSinceCreation }} - Expires: {{
+        <a href="/latest?id={{ .ID }}">{{ .ID }}</a> - Created: {{ .TimeSinceCreation }} - Expires: {{
         .TimeUntilExpiry }}
       </li>
       {{ end }}

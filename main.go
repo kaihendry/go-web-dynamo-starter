@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"net/http"
 	"os"
 	"time"
@@ -32,6 +33,34 @@ func (record *Record) TimeSinceCreation() string {
 
 func (record *Record) TimeUntilExpiry() string {
 	return time.Until(record.Expires).String()
+}
+
+func (record *Record) TransparentBG() string {
+	var c color.RGBA
+	var err error
+	switch len(record.Color) {
+	case 7:
+		_, err = fmt.Sscanf(record.Color, "#%02x%02x%02x", &c.R, &c.G, &c.B)
+	case 4:
+		_, err = fmt.Sscanf(record.Color, "#%1x%1x%1x", &c.R, &c.G, &c.B)
+		// Double the hex digits:
+		c.R *= 17
+		c.G *= 17
+		c.B *= 17
+	default:
+		err = fmt.Errorf("invalid length, must be 7 or 4")
+	}
+	if err != nil {
+		log.WithError(err).Fatal("converting to rgba")
+	}
+	// return fmt.Sprintf("rgba(%d, %d, %d, .5)", c.R, c.G, c.B)
+	log.WithFields(log.Fields{
+		"r":   c.R,
+		"g":   c.G,
+		"b":   c.B,
+		"hex": record.Color,
+	}).Info("converted to rgba")
+	return fmt.Sprintf("rgba(%s)", c.R)
 }
 
 func newServer(local bool) *server {

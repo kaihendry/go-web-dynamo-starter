@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"embed"
+	"html/template"
 	"net/http"
 	"os"
-	"text/template"
 
 	"github.com/apex/log"
 	"github.com/aws/aws-sdk-go-v2/aws"
