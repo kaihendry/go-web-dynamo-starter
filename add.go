@@ -45,6 +45,12 @@ func (s *server) add() http.HandlerFunc {
 
 		log.WithField("record", rec).Info("adding")
 
+		// check rec.Color is valid hex color
+		if !isValidHexColor(rec.Color) {
+			http.Error(w, "Invalid color", http.StatusBadRequest)
+			return
+		}
+
 		// marshall record into dynamo
 		av, err := attributevalue.MarshalMap(rec)
 		if err != nil {
@@ -65,4 +71,26 @@ func (s *server) add() http.HandlerFunc {
 		http.Redirect(w, r, "/", http.StatusFound)
 
 	}
+}
+
+func isValidHexColor(color string) bool {
+	if len(color) != 7 {
+		return false
+	}
+
+	if color[0] != '#' {
+		return false
+	}
+
+	for i := 1; i < len(color); i++ {
+		if !isHexDigit(color[i]) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func isHexDigit(c byte) bool {
+	return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
 }
