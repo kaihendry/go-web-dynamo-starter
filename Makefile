@@ -1,10 +1,10 @@
-STACK = last2
+STACK = ttl-test
 PROFILE = mine
 VERSION = 0.1
 
 .PHONY: build deploy validate destroy
 
-DOMAINNAME = last2.dabase.com
+DOMAINNAME = d.dabase.com
 ACMCERTIFICATEARN = arn:aws:acm:ap-southeast-1:407461997746:certificate/87b0fd84-fb44-4782-b7eb-d9c7f8714908
 
 deploy:

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html {
+        max-width: 38rem;
+        padding: 2rem;
+        margin: auto;
+        line-height: 1.5rem;
+        font-size: 24px;
+      }
+    </style>
+    <title>Colours</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+  </head>
+
+  <body>
+    <form action="/add" method="POST">
+      <input type="color" name="Color" />
+      <input type="submit" />
+    </form>
+
+    <ol>
+      {{range .Selection -}}
+      <li
+        style="background-color: {{ .Color }}; color: #fff; text-shadow: #000 0px 0px 2px;"
+      >
+        {{ .ID }} - Created: {{ .TimeSinceCreation }} - Expires: {{
+        .TimeUntilExpiry }}
+      </li>
+      {{ end }}
+    </ol>
+
+    <p>
+      <a href="https://github.com/kaihendry/go-web-dynamo-starter">Source</a>
+    </p>
+  </body>
+</html>

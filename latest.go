@@ -28,14 +28,14 @@ func (s *server) latest() http.HandlerFunc {
 			log.WithError(err).Fatal("couldn't get records")
 		}
 
-		var selection []record
+		var selection []Record
 		err = attributevalue.UnmarshalListOfMaps(records.Items, &selection)
 		if err != nil {
 			log.WithError(err).Fatal("couldn't parse records")
 		}
 
 		for _, rec := range selection {
-			fmt.Fprintf(w, units.HumanDuration(time.Now().UTC().Sub(rec.IssueDate))+" ago ")
+			fmt.Fprintf(w, units.HumanDuration(time.Now().UTC().Sub(rec.Created))+" ago ")
 			fmt.Fprintf(w, "%+v\n", rec)
 		}
 	}

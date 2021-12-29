@@ -14,15 +14,24 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
-type record struct {
-	ID         string    `dynamodbav:"id" json:"id"`
-	IssueDate  time.Time `dynamodbav:"issueDate" json:"issueDate"`
-	RandomWord string    `dynamodbav:"randomWord" json:"randomWord"`
+type Record struct {
+	ID      string    `dynamodbav:"id" json:"id"`
+	Created time.Time `dynamodbav:"created,unixtime" json:"created"`
+	Expires time.Time `dynamodbav:"expires,unixtime" json:"expires"`
+	Color   string    `dynamodbav:"color" json:"color"`
 }
 
 type server struct {
 	router *http.ServeMux
 	client *dynamodb.Client
+}
+
+func (record *Record) TimeSinceCreation() string {
+	return time.Since(record.Created).String()
+}
+
+func (record *Record) TimeUntilExpiry() string {
+	return time.Until(record.Expires).String()
 }
 
 func newServer(local bool) *server {

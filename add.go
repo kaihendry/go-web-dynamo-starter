@@ -2,16 +2,18 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/apex/log"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/gorilla/schema"
 )
+
+var decoder = schema.NewDecoder()
 
 func (s *server) add() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -22,12 +24,25 @@ func (s *server) add() http.HandlerFunc {
 		}
 
 		// parse body to a record
-		var rec record
-		err := json.NewDecoder(r.Body).Decode(&rec)
+		var rec Record
+
+		err := r.ParseForm()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		// r.PostForm is a map of our POST form values
+		err = decoder.Decode(&rec, r.PostForm)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		rec.ID = r.RemoteAddr
+		rec.Created = time.Now()
+		rec.Expires = rec.Created.Add(time.Minute)
+
 		log.WithField("record", rec).Info("adding")
 
 		// marshall record into dynamo
@@ -47,13 +62,7 @@ func (s *server) add() http.HandlerFunc {
 			return
 		}
 
-		// output how many records we have, using an empty ProjectionExpression
-		records, err := s.client.Scan(context.TODO(), &dynamodb.ScanInput{
-			TableName:            aws.String(os.Getenv("TABLE_NAME")),
-			ProjectionExpression: aws.String("id"),
-		})
-
-		fmt.Fprintf(w, "added %d records\n", records.Count)
+		http.Redirect(w, r, "/", http.StatusFound)
 
 	}
 }

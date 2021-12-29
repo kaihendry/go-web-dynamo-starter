@@ -11,20 +11,22 @@ Resources:
   RecordsTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      TimeToLiveSpecification:
+        Enabled: true
+        AttributeName: expires
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
-        - AttributeName: issueDate
-          AttributeType: S
+        - AttributeName: created
+          AttributeType: N
       KeySchema:
         - AttributeName: id
           KeyType: HASH
-        - AttributeName: issueDate
+        - AttributeName: created
           KeyType: RANGE
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
-      
+      BillingMode: PAY_PER_REQUEST
+
+
   Gateway:
     Type: AWS::Serverless::HttpApi
     Properties:

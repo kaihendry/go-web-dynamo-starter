@@ -1,2 +1,2 @@
 #!/bin/sh
-TABLE_NAME=Records gin
+TABLE_NAME=Records gin --all

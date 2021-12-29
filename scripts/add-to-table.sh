@@ -2,7 +2,7 @@
 
 id=$(uuidgen)
 randomWord=$(shuf -n1 /usr/share/dict/words)
-date=$(date --iso-8601=seconds)
+date=$(date +%s)
 
 cat <<EOJSON > /tmp/add.json
 [
