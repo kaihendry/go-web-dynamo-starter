@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"image/color"
 	"net/http"
 	"os"
@@ -35,7 +36,7 @@ func (record *Record) TimeUntilExpiry() string {
 	return time.Until(record.Expires).String()
 }
 
-func (record *Record) TransparentBG() string {
+func (record *Record) TransparentBG() template.CSS {
 	var c color.RGBA
 	var err error
 	switch len(record.Color) {
@@ -60,7 +61,7 @@ func (record *Record) TransparentBG() string {
 		"b":   c.B,
 		"hex": record.Color,
 	}).Info("converted to rgba")
-	return fmt.Sprintf("rgba(%s)", c.R)
+	return template.CSS(fmt.Sprintf("rgba(%d, %d, %d, 0.5)", c.R, c.G, c.B))
 }
 
 func newServer(local bool) *server {

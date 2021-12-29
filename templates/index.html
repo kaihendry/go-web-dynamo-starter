@@ -25,7 +25,7 @@
     <ol>
       {{range .Selection -}}
       <li
-        style="background-color: {{ .Color }};"
+        style="background-color: {{ .TransparentBG }};"
       >
         <a href="/latest?id={{ .ID }}">{{ .ID }}</a> - Created: {{ .TimeSinceCreation }} - Expires: {{
         .TimeUntilExpiry }}
