@@ -1,4 +1,4 @@
-module github.com/kaihendry/last2
+module github.com/kaihendry/go-web-dynamo-starter
 
 go 1.17
 

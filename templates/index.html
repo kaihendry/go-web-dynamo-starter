@@ -24,14 +24,22 @@
 
     <ol>
       {{range .Selection -}}
-      <li
-        style="background-color: {{ .TransparentBG }};"
-      >
-        <a href="/latest?id={{ .ID }}">{{ .ID }}</a> - Created: {{ .TimeSinceCreation }} - Expires: {{
-        .TimeUntilExpiry }}
+      <li style="background-color: {{ .TransparentBG }};">
+        <span class="id"> <a href="/latest?id={{ .ID }}">{{ .ID }}</a></span> -
+        <span class="created">Created: {{ .TimeSinceCreation }}</span> -
+        <span class="expires">Expires: {{ .TimeUntilExpiry }}</span>
       </li>
       {{ end }}
     </ol>
+
+    {{ if .Selection -}}
+    <p>
+      <a
+        href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/howitworks-ttl.html"
+        >TTL typically deletes expired items within 48 hours of expiration.</a
+      >
+    </p>
+    {{ end }}
 
     <p>
       <a href="https://github.com/kaihendry/go-web-dynamo-starter">Source</a>
