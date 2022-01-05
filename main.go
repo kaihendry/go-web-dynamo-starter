@@ -17,10 +17,10 @@ import (
 )
 
 type Record struct {
-	ID      string    `dynamodbav:"id" json:"id"`
-	Created time.Time `dynamodbav:"created,unixtime" json:"created"`
-	Expires time.Time `dynamodbav:"expires,unixtime" json:"expires"`
-	Color   string    `dynamodbav:"color" json:"color"`
+	ID      string     `dynamodbav:"id" json:"id"`
+	Created time.Time  `dynamodbav:"created,unixtime" json:"created"`
+	Expires *time.Time `dynamodbav:"expires,unixtime,omitempty" json:"expires"`
+	Color   string     `dynamodbav:"color" json:"color"`
 }
 
 type server struct {
@@ -33,7 +33,10 @@ func (record *Record) TimeSinceCreation() string {
 }
 
 func (record *Record) TimeUntilExpiry() string {
-	return time.Until(record.Expires).String()
+	if record.Expires != nil {
+		return time.Until(*record.Expires).String()
+	}
+	return ""
 }
 
 func (record *Record) TransparentBG() template.CSS {
@@ -60,7 +63,7 @@ func (record *Record) TransparentBG() template.CSS {
 		"g":   c.G,
 		"b":   c.B,
 		"hex": record.Color,
-	}).Info("converted to rgba")
+	}).Debug("converted to rgba")
 	return template.CSS(fmt.Sprintf("rgba(%d, %d, %d, 0.5)", c.R, c.G, c.B))
 }
 

@@ -41,7 +41,11 @@ func (s *server) add() http.HandlerFunc {
 
 		rec.ID = r.RemoteAddr
 		rec.Created = time.Now()
-		rec.Expires = rec.Created.Add(time.Minute)
+
+		// https://github.com/aws/aws-sdk-go/issues/2040#issuecomment-1004638139
+		// We need to make expires a pointer to a time.Time, since we want to omit it entirely if it's nil
+		expires := rec.Created.Add(time.Minute)
+		rec.Expires = &expires
 
 		log.WithField("record", rec).Info("adding")
 
