@@ -1,7 +1,10 @@
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main]
+permissions:
+  id-token: write
+  contents: read
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
