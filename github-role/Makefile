@@ -1,14 +1,15 @@
 PROFILE=mine
-STACK=github-actions-test
+STACK=github-actions
 GITHUBORG=kaihendry
-REPOSITORY=go-web-dynamo-starter
+
+CREATED_ROLE=github-actions-Role-56IHHM969DKJ
 
 deploy:
 	AWS_PROFILE=$(PROFILE) aws cloudformation deploy --stack-name $(STACK) --template-file configure-aws-credentials.yml --parameter-overrides RepositoryName=$(REPOSITORY) GitHubOrg=$(GITHUBORG) --capabilities CAPABILITY_IAM
 
 getrole:
-	aws iam get-role --role-name github-actions-test-Role-QVSUYDA0W3QG
+	aws iam get-role --role-name $(CREATED_ROLE)
 
 # view attached policies
 list-attached-role-policies:
-	aws iam list-attached-role-policies --role-name github-actions-test-Role-QVSUYDA0W3QG
+	aws iam list-attached-role-policies --role-name $(CREATED_ROLE)
