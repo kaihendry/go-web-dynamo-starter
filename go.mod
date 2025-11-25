@@ -10,7 +10,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.4.5
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression v1.3.5
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.11.0
-	github.com/gorilla/schema v1.2.0
+	github.com/gorilla/schema v1.4.1
 )
 
 require (
